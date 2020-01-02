@@ -1,0 +1,71 @@
+- name: create dashboard
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+
+- name: copy yaml for service account
+  copy:
+    src: create_dashboard_sa.yaml
+    dest: /tmp/create_dashboard_sa.yaml
+
+- name: create dashboard admin user
+  shell: kubectl apply -f /tmp/create_dashboard_sa.yaml
+
+#  Dashboard should be available at:
+#    http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+#  requires:
+#    kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+#    kubectl proxy  (on master node)
+#    ssh -g -L 8001:localhost:8001 -i secrets/ez-kube-private-key.pem -f -N ubuntu@<master node ip>  (on client)
+
+- name: remove sa yaml
+  file:
+    path: /tmp/create_dashboard_sa.yaml
+    state: absent
+
+- name: display token
+  shell: kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+  register: token
+
+- name: print token
+  debug:
+    msg: "{{ token }}"
+
+- name: copy yaml for service account
+  copy:
+    src: storageclass.yaml
+    dest: /tmp/storageclass.yaml
+
+- name: create storage classes
+  shell: kubectl apply -f /tmp/storageclass.yaml
+
+- name: create secret for ebs csi
+  template:
+    src: ebs-secret.yaml.j2
+    dest: /tmp/ebs-secret.yaml
+  vars:
+    csi_access_key: "{{ access_id }}"
+    csi_secret_key: "{{ secret_key }}"
+
+- name: create secret in kubernetes
+  shell: kubectl apply -f /tmp/ebs-secret.yaml
+
+- name: get helm script
+  get_url:
+    url: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+    dest: /tmp/helm.sh
+    mode: 0755
+
+- name: run helm install
+  shell: /tmp/helm.sh
+
+- name: install csi driver
+  shell: helm install aws-ebs-csi-driver --set enableVolumeScheduling=true --set enableVolumeResizing=true --set enableVolumeSnapshot=true https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.4.0/helm-chart.tgz
+
+# Apply csi driver for aws:
+#  kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
+#
+# via helm:
+#   helm install --name aws-ebs-csi-driver \
+#      --set enableVolumeScheduling=true \
+#      --set enableVolumeResizing=true \
+#      --set enableVolumeSnapshot=true \
+#      https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.4.0/helm-chart.tgz

@@ -1,0 +1,23 @@
+- name: common tasks for all hosts
+  hosts: all # normally all
+  become: yes
+  roles:
+    - common
+    - node_exporter
+
+- name: setup master
+  hosts: masters
+  become: yes
+  roles:
+    - master
+
+- name: setup workers
+  hosts: workers
+  become: yes
+  roles:
+    - worker
+
+- name: post setup
+  hosts: masters
+  roles:
+    - post

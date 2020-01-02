@@ -1,0 +1,40 @@
+#- name: create file system on device
+#  filesystem:
+#    dev: /dev/nvme1n1
+#    fstype: xfs
+
+#- name: create mount directory
+#  file:
+#    path: /mnt/volume
+#    state: directory
+#    mode: 0777
+
+#- name: mount the filesystem
+#  mount:
+#    state: mounted
+#    src: /dev/nvme1n1
+#    path: /mnt/volume
+#    fstype: xfs
+
+- name: retrieve kube join command
+  shell: "kubeadm token create --print-join-command"
+  delegate_to: "{{ groups['masters'][0] }}"
+  register: results
+
+- name: debug
+  debug:
+    msg: "{{ results }}"
+
+- name: get command
+  set_fact:
+    join_command: "{{ results.stdout }}"
+
+- name: check for existence
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubelet_conf
+
+- name: join cluster
+  shell: "{{ join_command }}"
+  ignore_errors : yes
+  when: kubelet_conf.stat.exists == false

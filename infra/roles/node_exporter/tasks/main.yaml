@@ -1,0 +1,52 @@
+- name: create node_exporter service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: node_exporter
+
+- name: is node_exporter installed
+  stat:
+    path: /usr/local/bin/node_exporter
+  register: ne_result
+
+- name: make directory
+  file:
+    path: /tmp/ne_download
+    mode: 0755
+    state: directory
+
+- name: get and install node_exporter
+  block:
+    - name: download node_exporter zip file
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_artifact }}"
+        dest: "/tmp/ne_download"
+
+    - name: unarchive node_exporter
+      unarchive:
+        src: "/tmp/ne_download/{{ node_exporter_artifact }}"
+        dest: "/tmp/ne_download"
+        remote_src: yes
+
+    - name: move executables
+      copy:
+        src: "/tmp/ne_download/{{ node_exporter_item }}/node_exporter"
+        dest: "/usr/local/bin/node_exporter"
+        mode: 0755
+        owner: node_exporter
+        group: node_exporter
+        remote_src: yes
+  when: ne_result.stat.exists == false
+
+- name: create service file
+  copy:
+    src: node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+    mode: 0644
+  notify:
+    - start node_exporter
+
+- name: remove download directory
+  file:
+    path: /tmp/ne_download
+    state: absent

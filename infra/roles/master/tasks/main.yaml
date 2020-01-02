@@ -1,0 +1,43 @@
+- name: copy kubeadm config file
+  copy:
+    src: kubeadm.conf
+    dest: /tmp/kubeadm.conf
+    mode: 0666
+    owner: ubuntu
+    group: ubuntu
+
+- name: check for existence
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubelet_conf
+
+- name: start kubeadm
+  shell: kubeadm init --config /tmp/kubeadm.conf
+  when: kubelet_conf.stat.exists == false
+
+- name: create .kube directory
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+- name: copy config file
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/ubuntu/.kube/config
+    owner: ubuntu
+    group: ubuntu
+    mode: 0400
+    remote_src: yes
+
+# setup flannel
+- name: download flannel yaml
+  get_url:
+    url: https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml
+    dest: /tmp/kube-flannel.yml
+
+- name: apply flannel yaml
+  shell: kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
+

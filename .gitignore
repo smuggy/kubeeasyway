@@ -1,0 +1,12 @@
+.DS_Store
+secrets/
+*.tfstate
+*.tfstate.backup
+*/env/
+.terraform/
+*.iml
+.idea/
+/infra/all_hosts
+.terraform.tfstate.lock.info
+infra/host_vars/*
+aws.credentials
