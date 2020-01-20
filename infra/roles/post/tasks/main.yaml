@@ -60,6 +60,14 @@
 - name: install csi driver
   shell: helm install aws-ebs-csi-driver --set enableVolumeScheduling=true --set enableVolumeResizing=true --set enableVolumeSnapshot=true https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.4.0/helm-chart.tgz
 
+- name: copy ingress controller yaml
+  copy:
+    src: ingress-controller.yaml
+    dest: /home/ubuntu/ingress-controller.yaml
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
 # Apply csi driver for aws:
 #  kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
 #

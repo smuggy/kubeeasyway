@@ -10,12 +10,14 @@
   become: yes
   roles:
     - master
+    - cadvisor
 
 - name: setup workers
   hosts: workers
   become: yes
   roles:
     - worker
+    - cadvisor
 
 - name: post setup
   hosts: masters

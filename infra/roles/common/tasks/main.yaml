@@ -73,5 +73,10 @@
 
 - name: install kubernetes components
   apt:
-    name: ["kubeadm", "kubelet", "kubectl"]
+    name: ["kubeadm", "kubelet", "kubectl", "python3-pip"]
+    state: present
+
+- name: install pip docker
+  pip:
+    name: docker
     state: present
