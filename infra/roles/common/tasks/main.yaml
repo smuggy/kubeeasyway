@@ -16,21 +16,21 @@
     enabled: yes
     state: started
 
-- name: create aws directory
-  file:
-    path: /home/ubuntu/.aws
-    state: directory
-    owner: ubuntu
-    group: ubuntu
-    mode: 0755
-
-- name: copy credentials file
-  copy:
-    src: ../secrets/aws.credentials
-    dest: /home/ubuntu/.aws/credentials
-    owner: ubuntu
-    group: ubuntu
-    mode: 0440
+#- name: create aws directory
+#  file:
+#    path: /home/ubuntu/.aws
+#    state: directory
+#    owner: ubuntu
+#    group: ubuntu
+#    mode: 0755
+#
+#- name: copy credentials file
+#  copy:
+#    src: ../secrets/aws.credentials
+#    dest: /home/ubuntu/.aws/credentials
+#    owner: ubuntu
+#    group: ubuntu
+#    mode: 0440
 
 - name: set ip bridge
   sysctl:

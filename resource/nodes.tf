@@ -1,7 +1,8 @@
 locals {
   worker_count = 2
-  master_hosts = formatlist("ezkm-%d.internal.podspace.net ansible_host=%s", range(1), aws_instance.master.*.public_ip)
-  internal_master_names = formatlist("ezkm-%d.internal.podspace.net", range(1))
+  master_count = 1
+  master_hosts = formatlist("ezkm-%d.internal.podspace.net ansible_host=%s", range(local.master_count), aws_instance.master.*.public_ip)
+  internal_master_names = formatlist("ezkm-%d.internal.podspace.net", range(local.master_count))
 
   worker_hosts = formatlist("ezkw-%d.internal.podspace.net ansible_host=%s",
                             range(local.worker_count),
@@ -15,7 +16,7 @@ resource aws_instance master {
   key_name          = local.key_name
   availability_zone = element(local.az_list, count.index)
   subnet_id         = lookup(local.subnet_map, element(local.az_list, count.index))
-  count             = 1
+  count             = local.master_count
 #  iam_instance_profile = aws_iam_instance_profile.kube_node.id
 
   vpc_security_group_ids = [local.secgrp_id, aws_security_group.kubernetes_security_group.id]

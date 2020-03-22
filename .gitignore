@@ -9,4 +9,5 @@ secrets/
 /infra/all_hosts
 .terraform.tfstate.lock.info
 infra/host_vars/*
+infra/group_vars/*
 aws.credentials

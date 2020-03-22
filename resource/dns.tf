@@ -12,7 +12,7 @@ resource aws_route53_zone reverse {
   }
 }
 
-resource "aws_route53_record" "ns" {
+resource aws_route53_record ns {
   allow_overwrite = true
   zone_id         = aws_route53_zone.internal.zone_id
   name            = "internal.podspace.net"
@@ -29,7 +29,7 @@ resource "aws_route53_record" "ns" {
 
 resource aws_route53_record master_internal {
   zone_id = aws_route53_zone.internal.zone_id
-  count   = 1
+  count   = local.master_count
   name    = local.internal_master_names[count.index]
   type    = "A"
   ttl     = "300"
@@ -38,7 +38,7 @@ resource aws_route53_record master_internal {
 
 resource aws_route53_record master_reverse {
   zone_id = aws_route53_zone.reverse.zone_id
-  count   = 1
+  count   = local.master_count
   name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
                       lookup(aws_instance.master[count.index], "private_ip"))))
   type    = "PTR"

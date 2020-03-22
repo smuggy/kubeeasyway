@@ -29,10 +29,15 @@
   debug:
     msg: "{{ token }}"
 
-- name: copy yaml for service account
-  copy:
-    src: storageclass.yaml
+- name: create storage class file
+  template:
+    src: storageclass.yaml.j2
     dest: /tmp/storageclass.yaml
+
+#- name: copy yaml for service account
+#  copy:
+#    src: storageclass.yaml
+#    dest: /tmp/storageclass.yaml
 
 - name: create storage classes
   shell: kubectl apply -f /tmp/storageclass.yaml
