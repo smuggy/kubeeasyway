@@ -40,4 +40,3 @@
 
 - name: apply flannel yaml
   shell: kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
-

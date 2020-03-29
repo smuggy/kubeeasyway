@@ -21,9 +21,9 @@
   delegate_to: "{{ groups['masters'][0] }}"
   register: results
 
-- name: debug
-  debug:
-    msg: "{{ results }}"
+#- name: debug
+#  debug:
+#    msg: "{{ results }}"
 
 - name: get command
   set_fact:

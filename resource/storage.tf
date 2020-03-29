@@ -10,18 +10,18 @@ resource aws_kms_key sc_volume_key {
   policy = data.aws_iam_policy_document.sc_key_policy.json
 }
 
-resource aws_kms_alias my_sc_alias {
+resource aws_kms_alias sc_key_alias {
   target_key_id = aws_kms_key.sc_volume_key.arn
   name          = "alias/kube-pv-key"
 }
 
 data aws_iam_policy_document sc_key_policy {
   statement {
-    sid = "csi_policy"
+    sid    = "csi_policy"
     effect = "Allow"
     principals {
       identifiers = [aws_iam_user.storageclass_user.arn]
-      type = "AWS"
+      type        = "AWS"
     }
     actions = [
       "kms:Encrypt",
@@ -81,8 +81,8 @@ data aws_iam_policy_document sc_volume_policy {
       aws_kms_key.sc_volume_key.arn
     ]
     condition {
-      test = "StringEquals"
-      values = [aws_iam_user.storageclass_user.name]
+      test     = "StringEquals"
+      values   = [aws_iam_user.storageclass_user.name]
       variable = "aws:username"
     }
   }
@@ -109,8 +109,8 @@ data aws_iam_policy_document sc_volume_policy {
       "*"
     ]
     condition {
-      test = "StringEquals"
-      values = [aws_iam_user.storageclass_user.name]
+      test     = "StringEquals"
+      values   = [aws_iam_user.storageclass_user.name]
       variable = "aws:username"
     }
   }
@@ -128,11 +128,11 @@ resource aws_iam_access_key sc_access {
 resource local_file master_host_var {
   file_permission   = 0644
   filename          = "../infra/host_vars/${element(local.internal_master_names, 0)}"
-  content           = "access_id: ${aws_iam_access_key.sc_access.id}\nsecret_key: ${aws_iam_access_key.sc_access.secret}\nstorage_class_key: ${aws_kms_key.sc_volume_key.arn}"
-}
-
-output access_key {
-  value = aws_iam_access_key.sc_access.id
+  content           = <<CONTENT
+access_id: ${aws_iam_access_key.sc_access.id}
+secret_key: ${aws_iam_access_key.sc_access.secret}
+storage_class_key: ${aws_kms_key.sc_volume_key.arn}
+CONTENT
 }
 
 output sc_volume_key_id {
