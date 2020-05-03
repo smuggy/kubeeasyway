@@ -1,5 +1,5 @@
 - name: create dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 
 - name: copy yaml for service account
   copy:
@@ -62,8 +62,19 @@
 - name: run helm install
   shell: /tmp/helm.sh
 
+- name: add stable repo
+  shell: helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+
+- name: update repos
+  shell: helm repo update
+
 - name: install csi driver
-  shell: helm install aws-ebs-csi-driver --set enableVolumeScheduling=true --set enableVolumeResizing=true --set enableVolumeSnapshot=true https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.4.0/helm-chart.tgz
+  shell: >-
+    helm install aws-ebs-csi-driver
+    --set enableVolumeScheduling=true
+    --set enableVolumeResizing=true
+    --set enableVolumeSnapshot=true
+    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.5.0/helm-chart.tgz
 
 - name: copy ingress controller yaml
   copy:

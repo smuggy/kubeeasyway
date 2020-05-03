@@ -4,7 +4,6 @@ locals {
   key_name     = "ez-kube-key"
   vpc_id       = data.aws_vpc.kube_vpc.id
   vpc_name     = "kube-us-east-2-vpc"
-  secgrp_name  = "kube_vpc_default"
   secgrp_id    = data.aws_security_group.vpc_secgrp.id
   az_list      = ["us-east-2a", "us-east-2b", "us-east-2c"]
   subnet_map   = {
@@ -20,7 +19,7 @@ data aws_ami ubuntu {
 
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-disco-*-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-*-amd64-server-*"]
   }
 
   filter {
@@ -34,7 +33,8 @@ data aws_ami ubuntu {
 data aws_region current {}
 
 data aws_security_group vpc_secgrp {
-  name = local.secgrp_name
+  name   = "default"
+  vpc_id = data.aws_vpc.kube_vpc.id
 }
 
 data aws_vpc kube_vpc {
