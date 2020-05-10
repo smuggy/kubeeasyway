@@ -33,7 +33,7 @@ resource aws_instance master {
 
 resource aws_instance workers {
   ami               = local.ami_id
-  instance_type     = "t3a.small"
+  instance_type     = "t3a.medium"
   availability_zone = element(local.az_list, count.index)
   count             = local.worker_count
   key_name          = local.key_name

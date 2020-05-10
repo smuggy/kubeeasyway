@@ -1,16 +1,3 @@
-//resource aws_route53_zone internal {
-//  name = "internal.podspace.net"
-//  vpc {
-//    vpc_id = local.vpc_id
-//  }
-//}
-//
-//resource aws_route53_zone reverse {
-//  name = "20.10.in-addr.arpa"
-//  vpc {
-//    vpc_id = local.vpc_id
-//  }
-//}
 data aws_route53_zone internal {
   name         = "internal.podspace.net"
   private_zone = true

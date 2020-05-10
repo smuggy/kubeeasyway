@@ -9,7 +9,6 @@ resource local_file private_key_file {
   file_permission    = 0400
 
   directory_permission = 0755
-  depends_on           = [aws_key_pair.ez_kube_pair]
 }
 
 resource local_file public_key_file {
@@ -18,12 +17,12 @@ resource local_file public_key_file {
   file_permission = 0644
 
   directory_permission = 0755
-  depends_on           = [aws_key_pair.ez_kube_pair]
 }
 
 resource aws_key_pair ez_kube_pair {
   key_name   = local.key_name
   public_key = tls_private_key.ssh_key.public_key_openssh
+  depends_on = [local_file.private_key_file, local_file.public_key_file]
 }
 
 output key_pair_name {

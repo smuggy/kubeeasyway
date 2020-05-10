@@ -39,6 +39,15 @@ resource aws_security_group_rule cadvisor {
   to_port           = 8080
 }
 
+resource aws_security_group_rule kube_https_alt {
+  security_group_id = aws_security_group.kubernetes_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/8"]
+  from_port         = 6443
+  to_port           = 6443
+}
+
 resource aws_security_group_rule kube_self_all {
   security_group_id = aws_security_group.kubernetes_security_group.id
   type              = "ingress"
