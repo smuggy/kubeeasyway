@@ -88,8 +88,8 @@ data aws_iam_policy_document sc_volume_policy {
   }
 
   statement {
-    sid    = "ec2AccessPolicy"
-    effect = "Allow"
+    sid     = "ec2AccessPolicy"
+    effect  = "Allow"
     actions = [
       "ec2:DetachVolume",
       "ec2:AttachVolume",
@@ -126,9 +126,9 @@ resource aws_iam_access_key sc_access {
 }
 
 resource local_file master_host_var {
-  file_permission   = 0644
-  filename          = "../infra/host_vars/${element(local.internal_master_names, 0)}"
-  content           = <<CONTENT
+  file_permission = 0644
+  filename        = "../infra/host_vars/${element(local.internal_master_names, 0)}"
+  content         = <<CONTENT
 access_id: ${aws_iam_access_key.sc_access.id}
 secret_key: ${aws_iam_access_key.sc_access.secret}
 storage_class_key: ${aws_kms_key.sc_volume_key.arn}
