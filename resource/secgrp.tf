@@ -53,6 +53,6 @@ resource aws_security_group_rule kube_self_all {
   type              = "ingress"
   protocol          = "all"
   from_port         = 0
-  to_port           = 65000
+  to_port           = 65535
   self              = true
 }
