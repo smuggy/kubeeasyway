@@ -1,5 +1,5 @@
 - name: create dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml
 
 - name: copy yaml for service account
   copy:
@@ -33,6 +33,7 @@
   template:
     src: storageclass.yaml.j2
     dest: /tmp/storageclass.yaml
+    mode: 0644
 
 #- name: copy yaml for service account
 #  copy:
@@ -46,6 +47,7 @@
   template:
     src: ebs-secret.yaml.j2
     dest: /tmp/ebs-secret.yaml
+    mode: 0644
   vars:
     csi_access_key: "{{ access_id }}"
     csi_secret_key: "{{ secret_key }}"

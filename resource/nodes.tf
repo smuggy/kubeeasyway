@@ -8,6 +8,8 @@ locals {
                                      range(local.worker_count),
                                      aws_instance.workers.*.public_ip)
   internal_worker_names = formatlist("ezkw-%d.internal.podspace.net", range(local.worker_count))
+  worker_ids            = formatlist("%s: %s", aws_instance.workers.*.id, local.internal_worker_names)
+  master_ids            = formatlist("%s: %s", aws_instance.master.*.id, local.internal_master_names)
 }
 
 resource aws_instance master {
@@ -65,6 +67,12 @@ resource local_file host_file {
   content         = data.template_file.all_hosts.rendered
   file_permission = 0644
   filename        = "../infra/all_hosts"
+}
+
+resource local_file local_host_vars {
+  filename        = "../infra/host_vars/localhost"
+  content         = "instance_ids:\n  - ${join("\n  - ", local.worker_ids)}\n  - ${join("\n  - ", local.master_ids)}"
+  file_permission = 0444
 }
 
 #resource local_file host_vars {
