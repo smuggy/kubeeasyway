@@ -1,4 +1,4 @@
-- name: shutdown servers
+- name: start servers
   hosts: localhost
   roles:
     - role: start

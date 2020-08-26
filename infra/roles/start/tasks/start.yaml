@@ -7,10 +7,6 @@
     aws ec2 describe-instances --instance-ids {{ instance_id }}
   register: aws_get_out
 
-- name: show get output
-  debug:
-    msg: "output: {{ (aws_get_out.stdout | from_json).Reservations[0]['Instances'][0]['PublicIpAddress'] }}"
-
 - name: set new ip
   set_fact:
     new_public_ip: "{{ (aws_get_out.stdout | from_json).Reservations[0]['Instances'][0]['PublicIpAddress'] }}"

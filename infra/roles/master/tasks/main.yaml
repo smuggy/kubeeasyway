@@ -37,6 +37,10 @@
   get_url:
     url: https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml
     dest: /tmp/kube-flannel.yml
+    mode: 0644
 
 - name: apply flannel yaml
   shell: kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
+
+- name: install kubernetes python package
+  shell: pip3 install kubernetes openshift
