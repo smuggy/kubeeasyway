@@ -2,7 +2,7 @@
 - name: update os
   apt:
     update_cache: yes
-    upgrade: "yes"
+    upgrade: yes
 
 - name: install docker
   become: yes

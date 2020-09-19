@@ -57,3 +57,7 @@ data aws_subnet kube_subnet_three {
   vpc_id            = local.vpc_id
   availability_zone = element(local.az_list, 2)
 }
+//
+//data external zone_id {
+//  program = ["${path.module}/zone_lookup.sh", "us-east-2", "vpc-03c6d3c2e7b61f9aa", "podspace.net"]
+//}

@@ -2,7 +2,7 @@
 Provide some basic abilities to the cluster to allow
 for monitoring and ingress. 
 
-###Storage class
+### Storage class
 Create the storage class *ebs-sc* for to provision for
 dynamic persistent volume claims.
 
