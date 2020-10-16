@@ -9,14 +9,14 @@
     path: /usr/local/bin/node_exporter
   register: ne_result
 
-- name: make directory
-  file:
-    path: /tmp/ne_download
-    mode: 0755
-    state: directory
-
 - name: get and install node_exporter
   block:
+    - name: make directory
+      file:
+        path: /tmp/ne_download
+        mode: 0755
+        state: directory
+
     - name: download node_exporter zip file
       get_url:
         url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_artifact }}"
@@ -37,6 +37,11 @@
         owner: node_exporter
         group: node_exporter
         remote_src: yes
+
+    - name: remove download directory
+      file:
+        path: /tmp/ne_download
+        state: absent
   when: ne_result.stat.exists == false
 
 - name: create service file
@@ -46,8 +51,3 @@
     mode: 0644
   notify:
     - start node_exporter
-
-- name: remove download directory
-  file:
-    path: /tmp/ne_download
-    state: absent

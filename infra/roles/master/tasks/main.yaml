@@ -8,6 +8,8 @@
   vars:
     hostname: "{{ private_dns }}"
     providerid: "{{ provider_id }}"
+    privateip: "{{ ansible_default_ipv4.address }}"
+    publicname: "{{ inventory_hostname }}"
 
 - name: check for existence
   stat:

@@ -2,6 +2,7 @@
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
 nodeRegistration:
+  name: "{{ hostname }}"
   criSocket: "/var/run/dockershim.sock"
   kubeletExtraArgs:
     feature-gates: "CSINodeInfo=true,CSIDriverRegistry=true,CSIBlockVolume=true"
@@ -16,11 +17,35 @@ apiServer:
   extraArgs:
     cloud-provider: "external"
     feature-gates: "CSINodeInfo=true,CSIDriverRegistry=true,CSIBlockVolume=true,VolumeSnapshotDataSource=true"
+  certSANs:
+    - "{{ publicname }}"
+    - "{{ hostname }}"
+    - "kubernetes"
+    - "kubernetes.default"
+    - "kubernetes.default.svc"
+    - "kubernetes.default.svc.cluster.local"
+    - "{{ privateip }}"
+    - "10.96.0.1"
 clusterName: "testcluster"
 controllerManager:
   extraArgs:
     cloud-provider: "external"
     configure-cloud-routes: "false"
+etcd:
+  serverCertSANs:
+    - "{{ publicname }}"
+    - "{{ hostname }}"
+    - "localhost"
+    - "{{ privateip }}"
+    - "127.0.0.1"
+    - "::1"
+  peerCertSANs:
+    - "{{ publicname }}"
+    - "{{ hostname }}"
+    - "localhost"
+    - "{{ privateip }}"
+    - "127.0.0.1"
+    - "::1"
 #cloudControllerManager:
 #  cloudProvider: "aws"
 #kubernetesVersion: stable
