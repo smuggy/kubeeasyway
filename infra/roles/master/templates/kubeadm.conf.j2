@@ -2,21 +2,27 @@
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
 nodeRegistration:
+  criSocket: "/var/run/dockershim.sock"
   kubeletExtraArgs:
-#    allow-privileged: "true"
     feature-gates: "CSINodeInfo=true,CSIDriverRegistry=true,CSIBlockVolume=true"
+    cloud-provider: "external"
+    provider-id: "{{ providerid }}"
+    hostname-override: "{{ hostname }}"
 ...
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 apiServer:
   extraArgs:
-#    allow-privileged: "true"
+    cloud-provider: "external"
     feature-gates: "CSINodeInfo=true,CSIDriverRegistry=true,CSIBlockVolume=true,VolumeSnapshotDataSource=true"
 clusterName: "testcluster"
 controllerManager:
   extraArgs:
+    cloud-provider: "external"
     configure-cloud-routes: "false"
+#cloudControllerManager:
+#  cloudProvider: "aws"
 #kubernetesVersion: stable
 networking:
   dnsDomain: "cluster.local"

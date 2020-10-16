@@ -2,3 +2,18 @@
   systemd:
     name: systemd-resolved
     state: restarted
+
+- name: restart docker
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+
+- name: restart cri
+  systemd:
+    name: crio
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+

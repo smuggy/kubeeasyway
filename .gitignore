@@ -6,7 +6,7 @@ secrets/
 .terraform/
 *.iml
 .idea/
-/infra/all_hosts
+infra/all_hosts
 .terraform.tfstate.lock.info
 infra/host_vars/*
 infra/group_vars/*

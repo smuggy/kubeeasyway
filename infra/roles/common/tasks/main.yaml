@@ -2,19 +2,53 @@
 - name: update os
   apt:
     update_cache: yes
-    upgrade: yes
+    upgrade: "yes"
 
-- name: install docker
-  become: yes
+- name: install apt secure packages
   apt:
-    name: docker.io
+    name: ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "gnupg2"]
     state: present
 
-- name: enable and start docker
-  service:
-    name: docker
-    enabled: yes
-    state: started
+- name: update apt with docker key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add docker repo
+  apt_repository:
+    state: present
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    mode: 0644
+    update_cache: yes
+
+- name: create docker service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: docker
+
+- name: install docker
+  apt:
+    name: ["containerd.io", "docker-ce", "docker-ce-cli"]
+    state: present
+
+- name: copy daemon file
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    owner: docker
+    group: docker
+    mode: 0644
+  notify:
+    - restart docker
+
+- name: create directory
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
 
 #- name: create aws directory
 #  file:
@@ -32,43 +66,100 @@
 #    group: ubuntu
 #    mode: 0440
 
+- name: modprobe overlay
+  modprobe:
+    name: overlay
+
+- name: modprobe br_netfilter
+  modprobe:
+    name: br_netfilter
+
 - name: set ip bridge
   sysctl:
     name: net.bridge.bridge-nf-call-iptables
     value: "1"
 
+- name: set ip4 forward
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+
+- name: set ip6 bridge
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: "1"
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: add cri first key
+  apt_key:
+    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key
+    state: present
+
+- name: add cri second key
+  apt_key:
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.19/xUbuntu_20.04/Release.key
+    state: present
+
+- name: add cri first repo
+  apt_repository:
+    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /
+    mode: 0644
+    state: present
+
+- name: add cri second repo
+  apt_repository:
+    repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.19/xUbuntu_20.04/ /
+    state: present
+    mode: 0644
+    update_cache: yes
+
+- name: install cri
+  apt:
+    name: ["cri-o","cri-o-runc"]
+    state: present
+
+- name: start cri
+  systemd:
+    name: crio
+    daemon_reload: yes
+    state: restarted
+
 - name: ensure hostname set
-  hostname: name={{ inventory_hostname }}
-  when: inventory_hostname is not match('(\d{1,3}\.){3}\d{1,3}')
+  hostname:
+    name: "{{ private_dns }}"
 
-- name: ensure hostname is in /etc/hosts
-  lineinfile:
-    dest=/etc/hosts
-    regexp="^{{ ansible_default_ipv4.address }}.+$"
-    line="{{ ansible_default_ipv4.address }} {{ inventory_hostname }} {{ ansible_hostname }}"
+#- name: ensure hostname is in /etc/hosts
+#  lineinfile:
+#    dest=/etc/hosts
+#    regexp="^{{ ansible_default_ipv4.address }}.+$"
+#    line="{{ ansible_default_ipv4.address }} {{ inventory_hostname }} {{ ansible_hostname }}"
 
-- name: update resolve domain
-  ini_file:
-    path: /etc/systemd/resolved.conf
-    section: Resolve
-    option: Domains
-    value: internal.podspace.net
-    backup: yes
-  notify:
-    - restart resolved
+#- name: update resolve domain
+#  ini_file:
+#    path: /etc/systemd/resolved.conf
+#    section: Resolve
+#    option: Domains
+#    value: internal.podspace.net
+#    backup: yes
+#  notify:
+#    - restart resolved
 
 # Based on the following:
 #   https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 #
-- name: update apt with kubernetes repo
-  shell: |
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-    cat <<EOF | tee /etc/apt/sources.list.d/kubernetes.list
-    deb https://apt.kubernetes.io/ kubernetes-xenial main
-    EOF
 
-- name: refresh apt
-  apt:
+- name: add kubernetes key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: update apt with kubernetes repo
+  apt_repository:
+    repo: deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    mode: 0644
     update_cache: yes
 
 - name: install kubernetes components
@@ -80,3 +171,11 @@
   pip:
     name: docker
     state: present
+
+- name: remove cni file for cri
+  file:
+    state: absent
+    path: /etc/cni/net.d/100-crio-bridge.conf
+  notify:
+    - restart docker
+    - restart cri

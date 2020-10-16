@@ -1,14 +1,21 @@
 locals {
   worker_count = 2
   master_count = 1
-  master_hosts = formatlist("ezkm-%d.internal.podspace.net ansible_host=%s",
-                            range(local.master_count),
-                            aws_instance.master.*.public_ip)
+  master_ip    = data.aws_eip.kubernetes.public_ip
+  master_hosts = formatlist("ezkm-%d.internal.podspace.net ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",
+                            range(local.master_count), local.master_ip,
+                            aws_instance.master.*.private_dns,
+                            aws_instance.master.*.availability_zone,
+                            aws_instance.master.*.id)
+//                            aws_instance.master.*.public_ip)
 
   internal_master_names = formatlist("ezkm-%d.internal.podspace.net", range(local.master_count))
-  worker_hosts          = formatlist("ezkw-%d.internal.podspace.net ansible_host=%s",
+  worker_hosts          = formatlist("ezkw-%d.internal.podspace.net ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",
                                      range(local.worker_count),
-                                     aws_instance.workers.*.public_ip)
+                                     aws_instance.workers.*.public_ip,
+                                     aws_instance.workers.*.private_dns,
+                                     aws_instance.workers.*.availability_zone,
+                                     aws_instance.workers.*.id)
   internal_worker_names = formatlist("ezkw-%d.internal.podspace.net", range(local.worker_count))
   worker_ids            = formatlist("%s: %s", aws_instance.workers.*.id, local.internal_worker_names)
   master_ids            = formatlist("%s: %s", aws_instance.master.*.id, local.internal_master_names)
@@ -21,9 +28,9 @@ resource aws_instance master {
   availability_zone = element(local.az_list, count.index)
   subnet_id         = lookup(local.subnet_map, element(local.az_list, count.index))
   count             = local.master_count
-#  iam_instance_profile = aws_iam_instance_profile.kube_node.id
 
-  vpc_security_group_ids = [local.secgrp_id, aws_security_group.kubernetes_security_group.id]
+  iam_instance_profile   = data.aws_iam_instance_profile.kube_node_profile.name
+  vpc_security_group_ids = [aws_security_group.kubernetes_security_group.id]
 
   root_block_device {
     volume_size = 8
@@ -32,6 +39,7 @@ resource aws_instance master {
   tags = {
     Name     = format("ezkm-%d", count.index)
     KubeNode = "true"
+    "kubernetes.io/cluster/testcluster" = "owned" //owned or shared
   }
 }
 
@@ -42,9 +50,9 @@ resource aws_instance workers {
   count             = local.worker_count
   key_name          = local.key_name
   subnet_id         = lookup(local.subnet_map, element(local.az_list, count.index))
-#  iam_instance_profile = aws_iam_instance_profile.kube_node.id
 
-  vpc_security_group_ids = [local.secgrp_id, aws_security_group.kubernetes_security_group.id]
+  iam_instance_profile   = data.aws_iam_instance_profile.kube_node_profile.name
+  vpc_security_group_ids = [aws_security_group.kubernetes_security_group.id]
 
   root_block_device {
     volume_size = 8
@@ -53,6 +61,7 @@ resource aws_instance workers {
     Name       = format("ezkw-%d", count.index)
     NodeExport = "true"
     KubeNode   = "true"
+    "kubernetes.io/cluster/testcluster" = "owned" //owned or shared
   }
 }
 
@@ -84,6 +93,18 @@ resource local_file local_host_vars {
 #  file_permission = 0444
 #}
 
+data aws_eip kubernetes {
+  tags = {
+    Name = "kubernetes"
+  }
+}
+
+resource aws_eip_association kubernetes_master {
+  allocation_id = data.aws_eip.kubernetes.id
+  instance_id   = aws_instance.master.*.id[0]
+}
+
 output master_public_ip {
-  value = aws_instance.master.*.public_ip
+  value = aws_eip_association.kubernetes_master.public_ip
+//  value = aws_instance.master.*.public_ip
 }

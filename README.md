@@ -14,3 +14,11 @@ Go to this site:
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 ```
 to access the dashboard.
+
+or update the service yaml to use a nodeport and access without path.
+kubectl -n kubernetes-dashboard edit service kubernetes-dashboard
+
+https://kubernetes.podspace.net:xxxxx/
+
+For load balancer
+kubectl patch node ip-xxxxx.us-east-2.compute.internal -p '{"spec":{"providerID":"aws:///us-east-2a/i-0xxxxx"}}'

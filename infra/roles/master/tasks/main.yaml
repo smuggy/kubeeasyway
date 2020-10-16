@@ -1,10 +1,13 @@
 - name: copy kubeadm config file
-  copy:
-    src: kubeadm.conf
+  template:
+    src: kubeadm.conf.j2
     dest: /tmp/kubeadm.conf
     mode: 0666
     owner: ubuntu
     group: ubuntu
+  vars:
+    hostname: "{{ private_dns }}"
+    providerid: "{{ provider_id }}"
 
 - name: check for existence
   stat:
@@ -12,7 +15,7 @@
   register: kubelet_conf
 
 - name: start kubeadm
-  shell: kubeadm init --config /tmp/kubeadm.conf
+  shell: "kubeadm init --config /tmp/kubeadm.conf"
   when: kubelet_conf.stat.exists == false
 
 - name: create .kube directory
@@ -41,6 +44,3 @@
 
 - name: apply flannel yaml
   shell: kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
-
-- name: install kubernetes python package
-  shell: pip3 install kubernetes openshift

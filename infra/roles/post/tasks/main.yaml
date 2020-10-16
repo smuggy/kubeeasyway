@@ -5,14 +5,15 @@
   copy:
     src: create_dashboard_sa.yaml
     dest: /tmp/create_dashboard_sa.yaml
+    mode: 0666
 
-#- name: create dashboard admin user
-#  shell: kubectl apply -f /tmp/create_dashboard_sa.yaml
-#
 - name: create dashboard
-  k8s:
-    state: present
-    src: /tmp/create_dashboard_sa.yaml
+  shell: >-
+    kubectl apply -f /tmp/create_dashboard_sa.yaml
+#  k8s:
+#    state: present
+#    src: /tmp/create_dashboard_sa.yaml
+
 #  Dashboard should be available at:
 #    http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 #  requires:
@@ -39,18 +40,9 @@
     dest: /tmp/storageclass.yaml
     mode: 0644
 
-#- name: copy yaml for service account
-#  copy:
-#    src: storageclass.yaml
-#    dest: /tmp/storageclass.yaml
-
-#- name: create storage classes
-#  shell: kubectl apply -f /tmp/storageclass.yaml
-
 - name: create storage classes
-  k8s:
-    state: present
-    src: /tmp/storageclass.yaml
+  shell: >-
+    kubectl apply -f /tmp/storageclass.yaml
 
 - name: create secret for ebs csi
   template:
@@ -61,13 +53,9 @@
     csi_access_key: "{{ access_id }}"
     csi_secret_key: "{{ secret_key }}"
 
-#- name: create secret in kubernetes
-#  shell: kubectl apply -f /tmp/ebs-secret.yaml
-#
 - name: create ebs secret in kubernetes
-  k8s:
-    state: present
-    src: /tmp/ebs-secret.yaml
+  shell: >-
+    kubectl apply -f /tmp/ebs-secret.yaml
 
 - name: get helm script
   get_url:
@@ -100,5 +88,41 @@
     group: ubuntu
     mode: 0644
 
+- name: apply ingress controller
+  shell: >-
+    kubectl apply -f /home/ubuntu/ingress-controller.yaml
+
+- name: apply metrics service
+  shell: >-
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
+
 # Apply csi driver for aws:
 #  kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
+
+- name: copy cloud controller yaml
+  copy:
+    src: cloud-controller-manager.yaml
+    dest: /home/ubuntu/cloud-controller-manager.yaml
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
+- name: copy aws cloud controller yaml
+  copy:
+    src: aws-cloud-controller-manager.yaml
+    dest: /home/ubuntu/aws-cloud-controller-manager.yaml
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
+- name: copy external service for dashboard
+  copy:
+    src: dashboard-service.yaml
+    dest: /home/ubuntu/dashboard-service.yaml
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
+- name: apply external service dashboard
+  shell: >-
+    kubectl apply -f /home/ubuntu/dashboard-service.yaml

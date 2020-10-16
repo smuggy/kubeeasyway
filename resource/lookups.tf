@@ -61,3 +61,6 @@ data aws_subnet kube_subnet_three {
 //data external zone_id {
 //  program = ["${path.module}/zone_lookup.sh", "us-east-2", "vpc-03c6d3c2e7b61f9aa", "podspace.net"]
 //}
+data aws_iam_instance_profile kube_node_profile {
+  name = "kube-node-profile"
+}

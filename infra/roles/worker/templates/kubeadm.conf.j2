@@ -1,0 +1,24 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: JoinConfiguration
+nodeRegistration:
+  criSocket: "/var/run/dockershim.sock"
+  kubeletExtraArgs:
+    provider-id: "{{ providerid }}"
+{#    node-labels: "node-role.kubernetes.io/worker"#}
+    cgroup-driver: "systemd"
+    hostname-override: "{{ hostname }}"
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: "{{ endpoint }}"
+    token: "{{ token }}"
+    caCertHashes:
+    - "{{ hash }}"
+...
+{#---#}
+{#apiVersion: kubelet.config.k8s.io/v1beta1#}
+{#kind: KubeletConfiguration#}
+{#metadata:#}
+{#  name: "{{ hostname }}"#}
+{#providerID: "{{ providerid }}"#}
+{#cgroupDriver: "systemd"#}
