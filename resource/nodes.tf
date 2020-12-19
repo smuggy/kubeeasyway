@@ -37,8 +37,9 @@ resource aws_instance master {
   }
 
   tags = {
-    Name     = format("ezkm-%d", count.index)
-    KubeNode = "true"
+    Name         = format("ezkm-%d", count.index)
+    KubeNode     = "true"
+    ControlPlane = "true"
     "kubernetes.io/cluster/testcluster" = "owned" //owned or shared
   }
 }
@@ -58,9 +59,10 @@ resource aws_instance workers {
     volume_size = 8
   }
   tags = {
-    Name       = format("ezkw-%d", count.index)
-    NodeExport = "true"
-    KubeNode   = "true"
+    Name         = format("ezkw-%d", count.index)
+    NodeExport   = "true"
+    KubeNode     = "true"
+    ControlPlane = "False"
     "kubernetes.io/cluster/testcluster" = "owned" //owned or shared
   }
 }

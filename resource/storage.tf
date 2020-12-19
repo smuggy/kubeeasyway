@@ -138,3 +138,112 @@ CONTENT
 output sc_volume_key_id {
   value = aws_kms_key.sc_volume_key.arn
 }
+
+#===================================
+# Test EFS below
+#===================================
+//resource aws_efs_file_system csi_efs_test {
+//  tags = {
+//    "name" = "efs-csi-test"
+//  }
+//}
+
+//resource aws_efs_mount_target csi_efs_mt_a {
+//  file_system_id  = aws_efs_file_system.csi_efs_test.id
+//  subnet_id       = data.aws_subnet.kube_subnet_one.id
+//  security_groups = [aws_security_group.storage_security_group.id, aws_security_group.kubernetes_security_group.id]
+//}
+//
+//resource aws_efs_mount_target csi_efs_mt_b {
+//  file_system_id  = aws_efs_file_system.csi_efs_test.id
+//  subnet_id       = data.aws_subnet.kube_subnet_two.id
+//  security_groups = [aws_security_group.storage_security_group.id, aws_security_group.kubernetes_security_group.id]
+//}
+
+// === access point not needed ===
+//resource aws_efs_access_point csi_efs_access_point {
+//  file_system_id = aws_efs_file_system.csi_efs_test.id
+//}
+
+//output efs_arn {
+//  value = aws_efs_file_system.csi_efs_test.arn
+//}
+//
+//output efs_name {
+//  value = aws_efs_file_system.csi_efs_test.id
+//}
+//
+//resource aws_security_group storage_security_group {
+//  name   = "storage_sg"
+//  vpc_id = local.vpc_id
+//}
+//
+//resource aws_security_group_rule efs_icmp {
+//  security_group_id = aws_security_group.storage_security_group.id
+//  type              = "ingress"
+//  protocol          = "icmp"
+//  cidr_blocks       = ["10.0.0.0/8"]
+//  from_port         = -1
+//  to_port           = -1
+//}
+//
+//resource aws_security_group_rule efs_rule {
+//  security_group_id = aws_security_group.storage_security_group.id
+//  type              = "ingress"
+//  protocol          = "tcp"
+//  cidr_blocks       = ["10.0.0.0/8"]
+//  from_port         = 0
+//  to_port           = 65535
+//}
+
+#kind: StorageClass
+#apiVersion: storage.k8s.io/v1
+#metadata:
+#name: efs-sc
+#provisioner: efs.csi.aws.com
+
+//apiVersion: v1
+//kind: PersistentVolume
+//metadata:
+//name: efs-pv
+//spec:
+//capacity:
+//storage: 5Gi
+//volumeMode: Filesystem
+//accessModes:
+//- ReadWriteOnce
+//persistentVolumeReclaimPolicy: Retain
+//storageClassName: efs-sc
+//csi:
+//driver: efs.csi.aws.com
+//volumeHandle: fs-e8a95a42
+
+//apiVersion: v1
+//kind: PersistentVolumeClaim
+//metadata:
+//name: efs-claim
+//spec:
+//accessModes:
+//- ReadWriteOnce
+//storageClassName: efs-sc
+//resources:
+//requests:
+//storage: 5Gi
+
+//apiVersion: v1
+//kind: Pod
+//metadata:
+//name: efs-app
+//spec:
+//containers:
+//- name: app
+//image: centos
+//command: ["/bin/sh"]
+//args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
+//volumeMounts:
+//- name: persistent-storage
+//mountPath: /data
+//volumes:
+//- name: persistent-storage
+//persistentVolumeClaim:
+//claimName: efs-claim

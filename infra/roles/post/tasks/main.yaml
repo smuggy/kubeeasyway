@@ -67,7 +67,7 @@
   shell: /tmp/helm.sh
 
 - name: add stable repo
-  shell: helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+  shell: helm repo add stable https://charts.helm.sh/stable
 
 - name: update repos
   shell: helm repo update
@@ -78,7 +78,7 @@
     --set enableVolumeScheduling=true
     --set enableVolumeResizing=true
     --set enableVolumeSnapshot=true
-    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.5.0/helm-chart.tgz
+    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.7.0/helm-chart.tgz
 
 - name: copy ingress controller yaml
   copy:
@@ -124,5 +124,10 @@
     mode: 0644
 
 - name: apply external service dashboard
-  shell: >-
-    kubectl apply -f /home/ubuntu/dashboard-service.yaml
+  shell: kubectl apply -f /home/ubuntu/dashboard-service.yaml
+# retrieve the port by running kubectl get services -n kubernetes-dashboard
+# access via https://kubernetes.podspace.net:<portno>/
+# the token is output
+
+- name: apply cloud controller
+  shell: kubectl apply -f /home/ubuntu/aws-cloud-controller-manager.yaml
