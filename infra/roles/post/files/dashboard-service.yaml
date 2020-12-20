@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,3 +11,29 @@ spec:
   ports:
     - port: 443
       targetPort: 8443
+...
+# works, you can find the dashboard at:
+# https://kubernetes.podspace.net/dashboard
+#
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/dashboard)$ $1/ redirect;
+  namespace: kubernetes-dashboard
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /dashboard(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: external-dashboard
+                port:
+                  number: 443
