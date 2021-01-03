@@ -6,7 +6,7 @@
 
 - name: install apt secure packages
   apt:
-    name: ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "gnupg2"]
+    name: ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "gnupg"]
     state: present
 
 - name: update apt with docker key
@@ -29,7 +29,7 @@
 
 - name: install docker
   apt:
-    name: ["containerd.io", "docker-ce", "docker-ce-cli"]
+    name: ["docker-ce"]
     state: present
 
 - name: copy daemon file
@@ -163,16 +163,17 @@
     mode: 0644
     update_cache: yes
 
+#https://grigorkh.medium.com/install-kubernetes-on-ubuntu-1ac2ef522a36
 - name: install kubernetes components
   apt:
     name: ["kubeadm", "kubelet", "kubectl", "python3-pip"]
     state: present
 
-- name: install pip docker
-  pip:
-    name: docker
-    state: present
-
+#- name: install pip docker
+#  pip:
+#    name: docker
+#    state: present
+#
 - name: remove cni file for cri
   file:
     state: absent

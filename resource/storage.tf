@@ -142,36 +142,36 @@ output sc_volume_key_id {
 #===================================
 # Test EFS below
 #===================================
-resource aws_efs_file_system csi_efs_test {
-  tags = {
-    "name" = "efs-csi-test"
-  }
-}
-
-resource aws_efs_mount_target csi_efs_mt_a {
-  file_system_id  = aws_efs_file_system.csi_efs_test.id
-  subnet_id       = data.aws_subnet.kube_subnet_one.id
-  security_groups = [aws_security_group.storage_security_group.id, aws_security_group.kubernetes_security_group.id]
-}
-
-resource aws_efs_mount_target csi_efs_mt_b {
-  file_system_id  = aws_efs_file_system.csi_efs_test.id
-  subnet_id       = data.aws_subnet.kube_subnet_two.id
-  security_groups = [aws_security_group.storage_security_group.id, aws_security_group.kubernetes_security_group.id]
-}
+//resource aws_efs_file_system csi_efs_test {
+//  tags = {
+//    "name" = "efs-csi-test"
+//  }
+//}
+//
+//resource aws_efs_mount_target csi_efs_mt_a {
+//  file_system_id  = aws_efs_file_system.csi_efs_test.id
+//  subnet_id       = data.aws_subnet.kube_subnet_one.id
+//  security_groups = [aws_security_group.storage_security_group.id, aws_security_group.kubernetes_security_group.id]
+//}
+//
+//resource aws_efs_mount_target csi_efs_mt_b {
+//  file_system_id  = aws_efs_file_system.csi_efs_test.id
+//  subnet_id       = data.aws_subnet.kube_subnet_two.id
+//  security_groups = [aws_security_group.storage_security_group.id, aws_security_group.kubernetes_security_group.id]
+//}
 
 // === access point not needed ===
 //resource aws_efs_access_point csi_efs_access_point {
 //  file_system_id = aws_efs_file_system.csi_efs_test.id
 //}
 
-output efs_arn {
-  value = aws_efs_file_system.csi_efs_test.arn
-}
-
-output efs_name {
-  value = aws_efs_file_system.csi_efs_test.id
-}
+//output efs_arn {
+//  value = aws_efs_file_system.csi_efs_test.arn
+//}
+//
+//output efs_name {
+//  value = aws_efs_file_system.csi_efs_test.id
+//}
 
 resource aws_security_group storage_security_group {
   name   = "storage_sg"
