@@ -40,7 +40,7 @@
 # setup flannel
 - name: download flannel yaml
   get_url:
-    url: https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml
+    url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     dest: /tmp/kube-flannel.yml
     mode: 0644
 

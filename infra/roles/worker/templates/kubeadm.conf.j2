@@ -3,13 +3,15 @@ apiVersion: kubeadm.k8s.io/v1beta2
 kind: JoinConfiguration
 nodeRegistration:
   name: "{{ hostname }}"
-  criSocket: "/var/run/dockershim.sock"
+  criSocket: "/var/run/crio/crio.sock"
   kubeletExtraArgs:
     provider-id: "{{ providerid }}"
 {#    node-labels: "node-role.kubernetes.io/worker"#}
-    feature-gates: "CSINodeInfo=true,CSIDriverRegistry=true,CSIBlockVolume=true"
+    feature-gates: "CSINodeInfo=true,CSIDriverRegistry=true,CSIBlockVolume=true,RunAsGroup=true"
     cgroup-driver: "systemd"
     hostname-override: "{{ hostname }}"
+    container-runtime: remote
+    container-runtime-endpoint: "/var/run/crio/crio.sock"
 discovery:
   bootstrapToken:
     apiServerEndpoint: "{{ endpoint }}"
