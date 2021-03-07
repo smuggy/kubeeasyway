@@ -1,5 +1,5 @@
 - name: create dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.1.0/aio/deploy/recommended.yaml
 
 - name: copy yaml for service account
   copy:
@@ -118,7 +118,7 @@
 
 - name: apply metrics service
   shell: >-
-    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.4.2/components.yaml
 
 # Apply csi driver for aws:
 #  kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
@@ -150,7 +150,8 @@
 - name: apply external service dashboard
   shell: kubectl apply -f /home/ubuntu/dashboard-service.yaml
 # retrieve the port by running kubectl get services -n kubernetes-dashboard
-# access via https://kubernetes.podspace.net:<portno>/
+# access via node port at: https://kubernetes.podspace.net:<portno>/
+# or via ingress at: https://kubernetes.podspace.net/dashboard
 # the token is output
 
 - name: apply cloud controller
