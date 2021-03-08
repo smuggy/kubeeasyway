@@ -13,8 +13,8 @@ running the Terraform scripts in the [VPCs](https://github.com/smuggy/vpcs) repo
 
 ## Commands to remember for use
 These are not necessary now, the dashboard is available
-at the https://kubernetes.podspace.net/dashboard
-podspace.net is a domain owned by me, so please do not
+at the https://kubernetes.podspace.net/dashboard. 
+_podspace.net_ is a domain owned by me, so please do not
 use, replace that.
 
 Run this in the kubernetes master node:

@@ -1,15 +1,21 @@
 locals {
+  root_domain_name = "podspace.net"
+
   worker_count = 2
   master_count = 1
-  master_hosts = formatlist("ezkm-%d.internal.podspace.net ansible_host=%s",
+  master_hosts = formatlist("ezkm-%d.internal.%s ansible_host=%s",
+                            local.root_domain_name,
                             range(local.master_count),
                             aws_instance.master.*.public_ip)
 
-  internal_master_names = formatlist("ezkm-%d.internal.podspace.net", range(local.master_count))
-  worker_hosts          = formatlist("ezkw-%d.internal.podspace.net ansible_host=%s",
+  internal_master_names = formatlist("ezkm-%d.internal.%s",
+                                     range(local.master_count),
+                                     local.root_domain_name)
+  worker_hosts          = formatlist("ezkw-%d.internal.%s ansible_host=%s",
                                      range(local.worker_count),
+                                     local.root_domain_name,
                                      aws_instance.workers.*.public_ip)
-  internal_worker_names = formatlist("ezkw-%d.internal.podspace.net", range(local.worker_count))
+  internal_worker_names = formatlist("ezkw-%d.internal.%s", range(local.worker_count), local.root_domain_name)
   worker_ids            = formatlist("%s: %s", aws_instance.workers.*.id, local.internal_worker_names)
   master_ids            = formatlist("%s: %s", aws_instance.master.*.id, local.internal_master_names)
 }

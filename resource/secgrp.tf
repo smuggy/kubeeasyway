@@ -51,6 +51,7 @@ resource aws_security_group_rule kube_https_alt {
 resource aws_security_group_rule kube_self_all {
   security_group_id = aws_security_group.kubernetes_security_group.id
   type              = "ingress"
+  description       = "allow cluster cross talk"
   protocol          = "all"
   from_port         = 0
   to_port           = 65535
