@@ -11,3 +11,4 @@ secrets/
 infra/host_vars/*
 infra/group_vars/*
 aws.credentials
+.terraform.lock.hcl
