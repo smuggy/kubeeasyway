@@ -29,5 +29,5 @@ ruamel.yaml==0.16.10
 ruamel.yaml.clib==0.2.0
 s3transfer==0.3.3
 six==1.15.0
-urllib3==1.25.10
+urllib3==1.26.5
 websocket-client==0.57.0
