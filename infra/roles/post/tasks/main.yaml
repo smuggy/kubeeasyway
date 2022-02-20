@@ -1,4 +1,19 @@
-- name: create dashboard
+- name: get waiting CSRs
+  shell: >-
+    kubectl get csr -o json | jq -r '.items[] | select(.status.conditions == null)| .metadata.name'
+  register: csr_list
+
+- name: print list
+  debug:
+    msg: "csr list is: {{ csr_list }}"
+
+- name: approved csr
+  shell: |
+    sleep 1
+    kubectl certificate approve {{ item }}
+  with_items: "{{ csr_list.stdout.split() }}"
+
+- name: create dashboard deployment
   shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
 
 - name: copy yaml for service account
@@ -7,7 +22,7 @@
     dest: /tmp/create_dashboard_sa.yaml
     mode: 0666
 
-- name: create dashboard
+- name: create dashboard service account
   shell: >-
     kubectl apply -f /tmp/create_dashboard_sa.yaml
 #  k8s:
@@ -114,12 +129,24 @@
 
 - name: apply ingress controller
   shell: >-
-    #    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
     kubectl apply -f /home/ubuntu/ingress-controller.yaml
 
+#    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
+
+- name: copy metrics server yaml
+  copy:
+    src: metrics-server.yaml
+    dest: /home/ubuntu/metrics-server.yaml
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
 - name: apply metrics service
-  shell: >-
-    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
+  shell: |
+    sleep 15
+    kubectl apply -f /home/ubuntu/metrics-server.yaml
+
+#    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
 
 # Apply csi driver for aws:
 #  kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
@@ -149,7 +176,9 @@
     mode: 0644
 
 - name: apply external service dashboard
-  shell: kubectl apply -f /home/ubuntu/dashboard-service.yaml
+  shell: |
+    sleep 15
+    kubectl apply -f /home/ubuntu/dashboard-service.yaml
 # retrieve the port by running kubectl get services -n kubernetes-dashboard
 # access via node port at: https://kubernetes.podspace.net:<portno>/
 # or via ingress at: https://kubernetes.podspace.net/dashboard

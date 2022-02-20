@@ -25,6 +25,7 @@
         mode: 0644
       vars:
         hostname: "{{ private_dns }}"
+        publicname: "{{ inventory_hostname }}"
         endpoint: "{{ join_list[2] }}"
         token: "{{ join_list[4] }}"
         hash: "{{ join_list[6] }}"

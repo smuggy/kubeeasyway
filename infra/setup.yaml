@@ -19,7 +19,7 @@
     - worker
 #    - cadvisor
 
-- name: post setup
-  hosts: masters
-  roles:
-    - post
+#- name: post setup
+#  hosts: masters
+#  roles:
+#    - post

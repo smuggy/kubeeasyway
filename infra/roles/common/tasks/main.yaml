@@ -6,7 +6,7 @@
 
 - name: install apt secure packages
   apt:
-    name: ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "gnupg"]
+    name: ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "gnupg", "jq"]
     state: present
 
 #- name: create aws directory

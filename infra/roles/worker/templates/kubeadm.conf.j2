@@ -5,8 +5,6 @@ nodeRegistration:
   name: "{{ hostname }}"
   criSocket: "/var/run/crio/crio.sock"
   kubeletExtraArgs:
-{#    node-labels: "node-role.kubernetes.io/worker"#}
-{#    feature-gates: "RunAsGroup=true"#}
     cgroup-driver: "systemd"
     hostname-override: "{{ hostname }}"
     container-runtime: remote
@@ -18,13 +16,6 @@ discovery:
     caCertHashes:
     - "{{ hash }}"
 ...
-{#---#}
-{#apiVersion: kubelet.config.k8s.io/v1beta1#}
-{#kind: KubeletConfiguration#}
-{#metadata:#}
-{#  name: "{{ hostname }}"#}
-{#providerID: "{{ providerid }}"#}
-{#cgroupDriver: "systemd"#}
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration

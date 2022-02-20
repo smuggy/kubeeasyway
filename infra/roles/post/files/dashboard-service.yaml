@@ -27,6 +27,7 @@ metadata:
       rewrite ^(/dashboard)$ $1/ redirect;
   namespace: kubernetes-dashboard
 spec:
+  ingressClassName: nginx
   rules:
     - http:
         paths:
