@@ -7,7 +7,6 @@
     group: ubuntu
   vars:
     hostname: "{{ private_dns }}"
-    providerid: "{{ provider_id }}"
     privateip: "{{ ansible_default_ipv4.address }}"
     publicname: "{{ inventory_hostname }}"
 

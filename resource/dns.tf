@@ -3,6 +3,11 @@ data aws_route53_zone internal {
   private_zone = true
 }
 
+#data aws_route53_zone internal {
+#  name         = "podspace.local"
+#  private_zone = true
+#}
+
 data aws_route53_zone reverse {
   name         = "20.10.in-addr.arpa"
   private_zone = true

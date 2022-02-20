@@ -5,6 +5,8 @@ nodeRegistration:
   name: "{{ hostname }}"
   criSocket: "/var/run/crio/crio.sock"
   kubeletExtraArgs:
+    feature-gates: "RunAsGroup=true"
+    cloud-provider: "external"
     hostname-override: "{{ hostname }}"
     cgroup-driver: "systemd"
     container-runtime: remote
@@ -14,6 +16,8 @@ nodeRegistration:
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 apiServer:
+  extraArgs:
+    cloud-provider: "external"
   certSANs:
     - "{{ publicname }}"
     - "{{ hostname }}"
@@ -24,6 +28,10 @@ apiServer:
     - "{{ privateip }}"
     - "10.96.0.1"
 clusterName: "testcluster"
+controllerManager:
+  extraArgs:
+    cloud-provider: "external"
+    configure-cloud-routes: "false"
 etcd:
   local:
     serverCertSANs:
@@ -40,13 +48,11 @@ etcd:
       - "{{ privateip }}"
       - "127.0.0.1"
       - "::1"
+#cloudControllerManager:
+#  cloudProvider: "aws"
+#kubernetesVersion: stable
 networking:
   dnsDomain: "cluster.local"
   podSubnet: "10.244.0.0/16"
   serviceSubnet: "10.96.0.0/16"
-...
----
-apiVersion: kubelet.config.k8s.io/v1beta1
-kind: KubeletConfiguration
-serverTLSBootstrap: true
 ...

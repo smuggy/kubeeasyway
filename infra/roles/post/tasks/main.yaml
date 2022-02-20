@@ -1,5 +1,5 @@
 - name: create dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.1.0/aio/deploy/recommended.yaml
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
 
 - name: copy yaml for service account
   copy:
@@ -34,38 +34,38 @@
   debug:
     msg: "{{ token }}"
 
-- name: create storage class file
-  template:
-    src: storageclass.yaml.j2
-    dest: /tmp/storageclass.yaml
-    mode: 0644
-
-- name: create storage classes
-  shell: >-
-    kubectl apply -f /tmp/storageclass.yaml
-
-- name: create secret for ebs csi
-  template:
-    src: ebs-secret.yaml.j2
-    dest: /tmp/ebs-secret.yaml
-    mode: 0644
-  vars:
-    csi_access_key: "{{ access_id }}"
-    csi_secret_key: "{{ secret_key }}"
-
-- name: create ebs secret in kubernetes
-  shell: >-
-    kubectl apply -f /tmp/ebs-secret.yaml
-
-- name: copy efs storage class
-  copy:
-    src: efs-storage-class.yaml
-    dest: /tmp/efs-storage-class.yaml
-    mode: 0644
-
-- name: create efs storage class
-  shell: >-
-    kubectl apply -f /tmp/efs-storage-class.yaml
+#- name: create storage class file
+#  template:
+#    src: storageclass.yaml.j2
+#    dest: /tmp/storageclass.yaml
+#    mode: 0644
+#
+#- name: create storage classes
+#  shell: >-
+#    kubectl apply -f /tmp/storageclass.yaml
+#
+#- name: create secret for ebs csi
+#  template:
+#    src: ebs-secret.yaml.j2
+#    dest: /tmp/ebs-secret.yaml
+#    mode: 0644
+#  vars:
+#    csi_access_key: "{{ access_id }}"
+#    csi_secret_key: "{{ secret_key }}"
+#
+#- name: create ebs secret in kubernetes
+#  shell: >-
+#    kubectl apply -f /tmp/ebs-secret.yaml
+#
+#- name: copy efs storage class
+#  copy:
+#    src: efs-storage-class.yaml
+#    dest: /tmp/efs-storage-class.yaml
+#    mode: 0644
+#
+#- name: create efs storage class
+#  shell: >-
+#    kubectl apply -f /tmp/efs-storage-class.yaml
 
 - name: get helm script
   get_url:
@@ -79,28 +79,28 @@
 - name: add stable repo
   shell: helm repo add stable https://charts.helm.sh/stable
 
-- name: add k8s-sigs ebs repo
-  shell: helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver/
+#- name: add k8s-sigs ebs repo
+#  shell: helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver/
+#
+#- name: add k8s-sigs efs repo
+#  shell: helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
 
-- name: add k8s-sigs efs repo
-  shell: helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
-
-- name: update repos
-  shell: helm repo update
-
-- name: install csi aws ebs driver
-  shell: >-
-    helm install aws-ebs-csi-driver
-    --set enableVolumeScheduling=true
-    --set enableVolumeResizing=true
-    --set enableVolumeSnapshot=true
-    aws-ebs-csi-driver/aws-ebs-csi-driver
-##    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.8.0/helm-chart.tgz
-
-- name: install csi aws efs driver
-  shell: >-
-    helm install aws-efs-csi-driver
-    aws-efs-csi-driver/aws-efs-csi-driver
+#- name: update repos
+#  shell: helm repo update
+#
+#- name: install csi aws ebs driver
+#  shell: >-
+#    helm install aws-ebs-csi-driver
+#    --set enableVolumeScheduling=true
+#    --set enableVolumeResizing=true
+#    --set enableVolumeSnapshot=true
+#    aws-ebs-csi-driver/aws-ebs-csi-driver
+###    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v0.8.0/helm-chart.tgz
+#
+#- name: install csi aws efs driver
+#  shell: >-
+#    helm install aws-efs-csi-driver
+#    aws-efs-csi-driver/aws-efs-csi-driver
 
 #kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=release-1.0"
 
@@ -114,30 +114,31 @@
 
 - name: apply ingress controller
   shell: >-
+    #    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
     kubectl apply -f /home/ubuntu/ingress-controller.yaml
 
 - name: apply metrics service
   shell: >-
-    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.4.2/components.yaml
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.1/components.yaml
 
 # Apply csi driver for aws:
 #  kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
 
-- name: copy cloud controller yaml
-  copy:
-    src: cloud-controller-manager.yaml
-    dest: /home/ubuntu/cloud-controller-manager.yaml
-    owner: ubuntu
-    group: ubuntu
-    mode: 0644
-
-- name: copy aws cloud controller yaml
-  copy:
-    src: aws-cloud-controller-manager.yaml
-    dest: /home/ubuntu/aws-cloud-controller-manager.yaml
-    owner: ubuntu
-    group: ubuntu
-    mode: 0644
+#- name: copy cloud controller yaml
+#  copy:
+#    src: cloud-controller-manager.yaml
+#    dest: /home/ubuntu/cloud-controller-manager.yaml
+#    owner: ubuntu
+#    group: ubuntu
+#    mode: 0644
+#
+#- name: copy aws cloud controller yaml
+#  copy:
+#    src: aws-cloud-controller-manager.yaml
+#    dest: /home/ubuntu/aws-cloud-controller-manager.yaml
+#    owner: ubuntu
+#    group: ubuntu
+#    mode: 0644
 
 - name: copy external service for dashboard
   copy:
@@ -154,5 +155,5 @@
 # or via ingress at: https://kubernetes.podspace.net/dashboard
 # the token is output
 
-- name: apply cloud controller
-  shell: kubectl apply -f /home/ubuntu/aws-cloud-controller-manager.yaml
+#- name: apply cloud controller
+#  shell: kubectl apply -f /home/ubuntu/aws-cloud-controller-manager.yaml
