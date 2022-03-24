@@ -32,5 +32,5 @@
 
     - name: kubeadm join
       shell: "kubeadm join --config /home/ubuntu/kubeadm.conf"
-      ignore_errors : yes
+      ignore_errors : true
   when: kubelet_conf.stat.exists == false
