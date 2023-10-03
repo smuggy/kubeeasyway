@@ -1,6 +1,7 @@
 - name: "create group {{ account_name }}"
   group:
     name: "{{ account_name }}"
+    gid: "{{group_id }}"
     state: present
 
 - name: "create user {{ account_name }}"
@@ -9,4 +10,5 @@
     create_home: false
     shell: /bin/false
     group: "{{ account_name }}"
+    uid: "{{ user_id }}"
     state: present

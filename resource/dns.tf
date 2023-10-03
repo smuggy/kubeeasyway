@@ -1,5 +1,5 @@
 data aws_route53_zone internal {
-  name         = "internal.podspace.net"
+  name         = "podspace.internal"
   private_zone = true
 }
 
@@ -45,7 +45,7 @@ resource aws_route53_record worker_reverse {
 resource aws_route53_record kubernetes_name {
   zone_id = data.aws_route53_zone.internal.zone_id
   count   = 1
-  name    = "kubernetes.internal.podspace.net"
+  name    = "kubernetes.podspace.internal"
   type    = "A"
   ttl     = "300"
   records = aws_instance.master.*.private_ip

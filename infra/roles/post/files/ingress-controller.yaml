@@ -723,6 +723,20 @@ spec:
         app.kubernetes.io/instance: ingress-nginx
         app.kubernetes.io/component: controller
     spec:
+      tolerations:
+        - key: kubeadmNode
+          value: master
+          effect: NoSchedule
+#      affinity:
+#        nodeAffinity:
+#          preferredDuringSchedulingIgnoredDuringExecution:
+#            - weight: 100
+#              preference:
+#                matchExpressions:
+#                  - key: kubernetes.io/hostname
+#                    operator: In
+#                    values:
+#                      - ip-10-20-17-49.us-east-2.compute.internal
       dnsPolicy: ClusterFirst
       hostNetwork: true
       containers:
@@ -802,6 +816,7 @@ spec:
               memory: 90Mi
       nodeSelector:
         kubernetes.io/os: linux
+        kubernetes.io/hostname: ip-10-20-17-49.us-east-2.compute.internal
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 300
       volumes:

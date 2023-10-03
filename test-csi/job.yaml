@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: myjob
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: myjobpod
+    spec:
+      containers:
+        - name: myjobctr
+          command: ["/bin/sh","-c"]
+          args: ["sleep 3600"]
+          volumeDevices:
+            - devicePath: /mnt/vol1
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vol1
+

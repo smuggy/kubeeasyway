@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vol1
+  namespace: default
+spec:
+  storageClassName: ebs-sc-gp2-enc-aws
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  volumeName: myvol
+  resources:
+    requests:
+      storage: 5Gi

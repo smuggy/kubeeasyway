@@ -10,13 +10,32 @@
     privateip: "{{ ansible_default_ipv4.address }}"
     publicname: "{{ inventory_hostname }}"
 
+- name: create etcd data directory
+  file:
+    state: directory
+    path: /var/lib/etcd
+    owner: etcd
+    group: etcd
+    mode: 0700
+
 - name: check for existence
   stat:
     path: /etc/kubernetes/kubelet.conf
   register: kubelet_conf
 
+- name: create certificates for kubernetes
+  shell: "kubeadm init phase certs all --config /tmp/kubeadm.conf"
+  when: kubelet_conf.stat.exists == false
+
+- name: set ownership for etcd certs
+  file:
+    owner: etcd
+    group: etcd
+    path: /etc/kubernetes/pki/etcd
+    recurse: true
+
 - name: start kubeadm
-  shell: "kubeadm init --config /tmp/kubeadm.conf"
+  shell: "kubeadm init --skip-phases certs --config /tmp/kubeadm.conf"
   when: kubelet_conf.stat.exists == false
 
 - name: create .kube directory

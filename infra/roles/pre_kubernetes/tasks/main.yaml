@@ -1,0 +1,5 @@
+- name: create etcd service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: etcd

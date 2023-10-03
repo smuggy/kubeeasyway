@@ -2,28 +2,28 @@ locals {
   worker_count = 2
   master_count = 1
   master_ip    = data.aws_eip.kubernetes.public_ip
-  master_hosts = formatlist("ezkm-%d.internal.podspace.net ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",
+  master_hosts = formatlist("ezkm-%d.podspace.internal ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",
                             range(local.master_count), local.master_ip,
                             aws_instance.master.*.private_dns,
                             aws_instance.master.*.availability_zone,
                             aws_instance.master.*.id)
 //                            aws_instance.master.*.public_ip)
 
-  internal_master_names = formatlist("ezkm-%d.internal.podspace.net", range(local.master_count))
-  worker_hosts          = formatlist("ezkw-%d.internal.podspace.net ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",
+  internal_master_names = formatlist("ezkm-%d.podspace.internal", range(local.master_count))
+  worker_hosts          = formatlist("ezkw-%d.podspace.internal ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",
                                      range(local.worker_count),
                                      aws_instance.workers.*.public_ip,
                                      aws_instance.workers.*.private_dns,
                                      aws_instance.workers.*.availability_zone,
                                      aws_instance.workers.*.id)
-  internal_worker_names = formatlist("ezkw-%d.internal.podspace.net", range(local.worker_count))
+  internal_worker_names = formatlist("ezkw-%d.podspace.internal", range(local.worker_count))
   worker_ids            = formatlist("%s: %s", aws_instance.workers.*.id, local.internal_worker_names)
   master_ids            = formatlist("%s: %s", aws_instance.master.*.id, local.internal_master_names)
 }
 
 resource aws_instance master {
   ami               = local.ami_id
-  instance_type     = "t3a.small"
+  instance_type     = "t3a.medium"
   key_name          = local.key_name
   availability_zone = element(local.az_list, count.index)
   subnet_id         = lookup(local.subnet_map, element(local.az_list, count.index))
@@ -46,7 +46,7 @@ resource aws_instance master {
 
 resource aws_instance workers {
   ami               = local.ami_id
-  instance_type     = "t3a.medium"
+  instance_type     = "t3a.large"
   availability_zone = element(local.az_list, count.index)
   count             = local.worker_count
   key_name          = local.key_name

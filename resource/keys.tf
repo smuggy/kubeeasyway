@@ -3,8 +3,8 @@ resource tls_private_key ssh_key {
   rsa_bits  = 2048
 }
 
-resource local_file private_key_file {
-  sensitive_content    = tls_private_key.ssh_key.private_key_pem
+resource local_sensitive_file private_key_file {
+  content              = tls_private_key.ssh_key.private_key_pem
   filename             = "../secrets/ez-kube-private-key.pem"
   file_permission      = 0400
   directory_permission = 0755
@@ -20,7 +20,7 @@ resource local_file public_key_file {
 resource aws_key_pair ez_kube_pair {
   key_name   = local.key_name
   public_key = tls_private_key.ssh_key.public_key_openssh
-  depends_on = [local_file.private_key_file, local_file.public_key_file]
+  depends_on = [local_sensitive_file.private_key_file, local_file.public_key_file]
 }
 
 output key_pair_name {

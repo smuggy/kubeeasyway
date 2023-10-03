@@ -44,6 +44,8 @@ rules:
     resources:
       - pods
       - nodes
+      - namespaces
+      - configmaps
     verbs:
       - get
       - list
@@ -103,6 +105,7 @@ metadata:
   name: metrics-server
   namespace: kube-system
 spec:
+  type: ClusterIP
   ports:
     - name: https
       port: 443
@@ -133,11 +136,12 @@ spec:
       containers:
         - args:
             - --cert-dir=/tmp
-            - --secure-port=4443
-            - --kubelet-preferred-address-types=Hostname,InternalIP
+            - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
             - --kubelet-use-node-status-port
             - --metric-resolution=15s
-          image: k8s.gcr.io/metrics-server/metrics-server:v0.6.1
+            - --kubelet-insecure-tls
+            - --secure-port=4443
+          image: registry.k8s.io/metrics-server/metrics-server:v0.6.4
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -168,6 +172,9 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - mountPath: /tmp
               name: tmp-dir

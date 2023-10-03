@@ -3,12 +3,13 @@
   become: yes
   roles:
     - common
-    - node_exporter
 
 - name: setup master
   hosts: masters
   become: yes
   roles:
+    - pre_kubernetes
+    - node_exporter
     - master
 #    - cadvisor
 
@@ -16,6 +17,7 @@
   hosts: workers
   become: yes
   roles:
+    - node_exporter
     - worker
 #    - cadvisor
 
