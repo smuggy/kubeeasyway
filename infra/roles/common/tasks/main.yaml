@@ -53,23 +53,23 @@
 
 - name: add cri first key
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key
+    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key
     state: present
 
 - name: add cri second key
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.28/xUbuntu_20.04/Release.key
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.28/xUbuntu_22.04/Release.key
     state: present
 
 - name: add cri first repo
   apt_repository:
-    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /
+    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /
     mode: 0644
     state: present
 
 - name: add cri second repo
   apt_repository:
-    repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.28/xUbuntu_20.04/ /
+    repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.28/xUbuntu_22.04/ /
     state: present
     mode: 0644
     update_cache: yes
@@ -110,17 +110,36 @@
 #   https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 #
 
-- name: add kubernetes key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
+#- name: add kubernetes key
+#  apt_key:
+#    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#    state: present
+
+- name: add kubernetes key to keyring
+  shell: |
+    rm -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    curl --fail --silent --location --show-error https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+#- name: update apt with kubernetes repo
+#  apt_repository:
+#    repo: deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main
+#    state: present
+#    mode: 0644
+#    update_cache: yes
 
 - name: update apt with kubernetes repo
   apt_repository:
-    repo: deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+    # | sudo tee /etc/apt/sources.list.d/kubernetes.list
     state: present
     mode: 0644
     update_cache: yes
+
+#- name: update apt with kubernetes repo
+#  apt_repository:
+#    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+#    state: present
+#    mode: 0644
+#    update_cache: yes
 
 #https://grigorkh.medium.com/install-kubernetes-on-ubuntu-1ac2ef522a36
 - name: install kubernetes components
@@ -146,6 +165,6 @@
   lineinfile:
     path: /etc/cni/net.d/100-crio-bridge.conflist
     regexp: '.*subnet": "10.*'
-    line: '            [{ "subnet": "10.244.0.0/16" }],'
+    line: '            [{ "subnet": "10.85.0.0/16" }],'
   notify:
     - restart cri

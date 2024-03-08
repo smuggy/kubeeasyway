@@ -67,17 +67,21 @@ resource aws_instance workers {
   }
 }
 
-data template_file all_hosts {
-  template   = file("${path.module}/templates/hosts.tpl")
-  depends_on = [aws_instance.master, aws_instance.workers]
-  vars = {
-    master_host_group = join("\n", local.master_hosts)
-    worker_host_group = join("\n", local.worker_hosts)
-  }
-}
+#data template_file all_hosts {
+#  template   = file("${path.module}/templates/hosts.tpl")
+#  depends_on = [aws_instance.master, aws_instance.workers]
+#  vars = {
+#    master_host_group = join("\n", local.master_hosts)
+#    worker_host_group = join("\n", local.worker_hosts)
+#  }
+#}
 
 resource local_file host_file {
-  content         = data.template_file.all_hosts.rendered
+  content         = templatefile("${path.module}/templates/hosts.tpl",
+    {
+      master_host_group = join("\n", local.master_hosts)
+      worker_host_group = join("\n", local.worker_hosts)
+    })
   file_permission = 0644
   filename        = "../infra/all_hosts"
 }
@@ -109,4 +113,12 @@ resource aws_eip_association kubernetes_master {
 output master_public_ip {
   value = aws_eip_association.kubernetes_master.public_ip
 //  value = aws_instance.master.*.public_ip
+}
+
+resource aws_route53_record kube_ip {
+  zone_id = data.aws_route53_zone.public.zone_id
+  name    = "kubernetes"
+  type    = "A"
+  ttl     = 300
+  records = [data.aws_eip.kubernetes.public_ip]
 }

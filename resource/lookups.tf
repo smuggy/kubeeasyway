@@ -19,7 +19,7 @@ data aws_ami ubuntu {
 
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-*-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-*-amd64-server-*"]
   }
 
   filter {
@@ -63,4 +63,8 @@ data aws_subnet kube_subnet_three {
 //}
 data aws_iam_instance_profile kube_node_profile {
   name = "kube-node-profile"
+}
+
+data aws_route53_zone public {
+  name = "podspace.net"
 }
