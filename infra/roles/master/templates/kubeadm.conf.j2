@@ -32,7 +32,7 @@ controlPlaneEndpoint: "{{ privateip }}:6443"
 etcd:
   local:
     imageRepository: "bitnami"
-    imageTag: "3.5.9"
+    imageTag: "3.5.12"
     dataDir: "/var/lib/etcd"
     serverCertSANs:
       - "{{ publicname }}"

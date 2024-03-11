@@ -1,6 +1,6 @@
 - name: copy kubeadm config file
   template:
-    src: kubeadm.conf.j2
+    src: kubeadm.conf.j2.aws
     dest: /tmp/kubeadm.conf
     mode: 0666
     owner: ubuntu

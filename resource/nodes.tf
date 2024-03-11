@@ -8,6 +8,7 @@ locals {
                             aws_instance.master.*.availability_zone,
                             aws_instance.master.*.id)
 //                            aws_instance.master.*.public_ip)
+# https://github.com/kubernetes/cloud-provider-aws/blob/master/docs/prerequisites.md
 
   internal_master_names = formatlist("ezkm-%d.podspace.internal", range(local.master_count))
   worker_hosts          = formatlist("ezkw-%d.podspace.internal ansible_host=%s private_dns=%s provider_id=aws:///%s/%s",

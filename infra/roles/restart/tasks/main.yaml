@@ -1,0 +1,22 @@
+- name: wait
+  block:
+    - name: Reboot the server
+      shell: "sleep 5 && reboot"
+      async: 1
+      poll: 0
+
+    - name: Wait for the reboot and reconnect
+      become: no
+      wait_for:
+        port: 22
+        host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+        search_regex: OpenSSH
+        delay: 10
+        timeout: 60
+      connection: local
+
+    - name: Check the Uptime of the servers
+      shell: "uptime"
+      register: Uptime
+
+    - debug: var=Uptime

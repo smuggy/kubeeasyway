@@ -25,6 +25,9 @@
 #    group: ubuntu
 #    mode: 0440
 
+- name: swap off
+  shell: swapoff -a
+
 - name: modprobe overlay
   modprobe:
     name: overlay
@@ -53,23 +56,23 @@
 
 - name: add cri first key
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key
+    url: https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key
     state: present
 
 - name: add cri second key
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.28/xUbuntu_22.04/Release.key
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:1.28/xUbuntu_20.04/Release.key
     state: present
 
 - name: add cri first repo
   apt_repository:
-    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /
+    repo: deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /
     mode: 0644
     state: present
 
 - name: add cri second repo
   apt_repository:
-    repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.28/xUbuntu_22.04/ /
+    repo: deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.28/xUbuntu_20.04/ /
     state: present
     mode: 0644
     update_cache: yes
@@ -83,6 +86,7 @@
   systemd:
     name: crio
     daemon_reload: yes
+    enabled: yes
     state: restarted
 
 - name: ensure hostname set
@@ -117,6 +121,7 @@
 
 - name: add kubernetes key to keyring
   shell: |
+    mkdir /etc/apt/keyrings
     rm -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     curl --fail --silent --location --show-error https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 #- name: update apt with kubernetes repo
@@ -144,7 +149,11 @@
 #https://grigorkh.medium.com/install-kubernetes-on-ubuntu-1ac2ef522a36
 - name: install kubernetes components
   apt:
-    name: ["kubeadm", "kubelet", "kubectl", "kubernetes-cni"]
+    name:
+      - kubelet
+      - kubectl
+      - kubeadm
+      - kubernetes-cni
     state: present
 
 - name: copy registries.conf file
@@ -152,6 +161,14 @@
     src: registries.conf
     dest: /etc/containers/registries.conf
     mode: 0644
+
+#- name: copy crio.conf
+#  copy:
+#    src: 10-crio.conf
+#    dest: /etc/cni/net.d/10-crio.conf
+#    mode: 0444
+#  notify:
+#    - restart cri
 
 # was 10.244.0.0/16
 #- name: update cni file for cri
@@ -165,6 +182,6 @@
   lineinfile:
     path: /etc/cni/net.d/100-crio-bridge.conflist
     regexp: '.*subnet": "10.*'
-    line: '            [{ "subnet": "10.85.0.0/16" }],'
+    line: '            [{ "subnet": "10.244.0.0/16" }],'
   notify:
     - restart cri

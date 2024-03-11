@@ -96,3 +96,12 @@ resource aws_security_group_rule kube_self_all {
   to_port           = 65535
   self              = true
 }
+
+resource aws_security_group_rule kube_self_all_egress {
+  security_group_id = aws_security_group.kubernetes_security_group.id
+  type              = "egress"
+  protocol          = "all"
+  from_port         = 0
+  to_port           = 65535
+  self              = true
+}

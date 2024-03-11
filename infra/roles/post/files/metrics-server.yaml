@@ -140,8 +140,8 @@ spec:
             - --kubelet-use-node-status-port
             - --metric-resolution=15s
             - --kubelet-insecure-tls
-            - --secure-port=4443
-          image: registry.k8s.io/metrics-server/metrics-server:v0.6.4
+            - --secure-port=10250
+          image: registry.k8s.io/metrics-server/metrics-server:v0.7.0
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -152,7 +152,7 @@ spec:
             periodSeconds: 10
           name: metrics-server
           ports:
-            - containerPort: 4443
+            - containerPort: 10250
               name: https
               protocol: TCP
           readinessProbe:
@@ -172,6 +172,8 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
             capabilities:
               drop:
                 - ALL

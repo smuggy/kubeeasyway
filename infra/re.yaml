@@ -1,0 +1,5 @@
+- name: reboot all
+  hosts: all
+  become: yes
+  roles:
+    - restart

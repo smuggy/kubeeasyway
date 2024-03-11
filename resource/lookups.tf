@@ -19,7 +19,8 @@ data aws_ami ubuntu {
 
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-*-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-*-amd64-server-*"]
+#    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-*-amd64-server-*"]
   }
 
   filter {
